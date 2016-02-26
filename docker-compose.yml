@@ -1,0 +1,9 @@
+neo4j:
+  image: "neo4j/neo4j:2.3.1"
+  ports:
+    - "7474:7474"
+  volumes:
+    - "./infra/plugins/:/var/lib/neo4j/plugins/"
+  environment:
+    NEO4J_THIRDPARTY_JAXRS_CLASSES: org.neo4j.example.unmanagedextension=/example
+    NEO4J_AUTH: none
