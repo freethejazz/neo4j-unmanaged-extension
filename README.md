@@ -9,19 +9,17 @@ the moment.It's a learning project :)
 
         ./build.sh
 
-2. Copy target/unmanaged-extension-template-1.0.jar into the
-infra/plugins directory
+2. Run `docker-compose up`
 
-3. Run `docker-compose up`
-
-4. Open the neo4j browser at port 7474, `:play movies`, and execute the
+3. Open the neo4j browser at port 7474, `:play movies`, and execute the
 cypher query to create the movies data set.
 
-5. Query it over HTTP (assumes docker machine IP):
+4. Query it over HTTP (assumes docker machine IP):
 
 ```
 curl http://192.168.99.100:7474/example/service/spanningTree/ACTED_IN
 ```
 
-6. Alternatively, open index.html in a browser and wait a moment for the
-visualization to render. Zoom, pan, interact w/ nodes, etc.
+5. Alternatively, open index.html in a browser and wait a moment for the
+visualization to render. Zoom, pan, interact w/ nodes, etc. (IP
+hardcoded, change in the javascript for different docker IP)
