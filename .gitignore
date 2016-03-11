@@ -1,4 +1,5 @@
 target
+infra
 neo4j-home
 *.swp
 

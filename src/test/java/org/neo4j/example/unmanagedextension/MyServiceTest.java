@@ -51,7 +51,7 @@ public class MyServiceTest {
 
     @Test
     public void shouldGetSpanningTree() throws IOException {
-        Response response = service.getSpanningTree("KNOW", graphDb);
+        Response response = service.getSpanningTree("KNOWS", graphDb);
         Map map = objectMapper.readValue((String) response.getEntity(), Map.class);
 
         assertEquals(((List) map.get("nodes")).size(), 6);
