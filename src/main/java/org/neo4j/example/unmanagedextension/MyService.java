@@ -1,5 +1,6 @@
 package org.neo4j.example.unmanagedextension;
 
+import net.spantree.neo4j.spanningtree.SpanningTree;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.neo4j.graphdb.*;
 import org.neo4j.helpers.collection.IteratorUtil;
@@ -32,35 +33,17 @@ public class MyService {
     }
 
     @GET
-    @Path("/friendsCypher/{name}")
-    public Response getFriendsCypher(@PathParam("name") String name, @Context GraphDatabaseService db) throws IOException {
-        Result result = db.execute("MATCH (p:Person)-[:KNOWS]-(friend) WHERE p.name = {n} RETURN friend.name",
-                Collections.<String, Object>singletonMap("n", name));
-        List<String> friendNames = new ArrayList<>();
-        for (Map<String, Object> item : IteratorUtil.asIterable(result)) {
-            friendNames.add((String) item.get("friend.name"));
-        }
-        ObjectMapper objectMapper = new ObjectMapper();
-        return Response.ok().entity(objectMapper.writeValueAsString(friendNames)).build();
-    }
+    @Path("/spanningTree/{relType}")
+    public Response getSpanningTree(@PathParam("relType") String relType, @Context GraphDatabaseService db) throws IOException {
+        RelationshipType type = DynamicRelationshipType.withName(relType);
 
-    @GET
-    @Path("/friendsJava/{name}")
-    public Response getFriendsJava(@PathParam("name") String name, @Context GraphDatabaseService db) throws IOException {
+        Set<Long> nodeIds = new HashSet<Long>();
 
-        List<String> friendNames = new ArrayList<>();
-
-        try (Transaction tx = db.beginTx()) {
-            Node person = IteratorUtil.single(db.findNodes(Labels.Person, "name", name));
-
-            for (Relationship knowsRel : person.getRelationships(RelTypes.KNOWS, Direction.BOTH)) {
-                Node friend = knowsRel.getOtherNode(person);
-                friendNames.add((String) friend.getProperty("name"));
-            }
-            tx.success();
-        }
+        SpanningTree spanningTree = new SpanningTree(db, relType);
+        Map results = spanningTree.traverse();
 
         ObjectMapper objectMapper = new ObjectMapper();
-        return Response.ok().entity(objectMapper.writeValueAsString(friendNames)).build();
+        return Response.ok().entity(objectMapper.writeValueAsString(results)).build();
     }
+
 }

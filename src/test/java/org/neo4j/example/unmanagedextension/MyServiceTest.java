@@ -16,9 +16,7 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
@@ -52,18 +50,15 @@ public class MyServiceTest {
     }
 
     @Test
-    public void shouldQueryDbForFriendsWithCypher() throws IOException {
-        Response response = service.getFriendsCypher("B", graphDb);
-        List list = objectMapper.readValue((String) response.getEntity(), List.class);
-        assertEquals(new HashSet<>(Arrays.asList("A", "C")), new HashSet<>(list));
+    public void shouldGetSpanningTree() throws IOException {
+        Response response = service.getSpanningTree("KNOW", graphDb);
+        Map map = objectMapper.readValue((String) response.getEntity(), Map.class);
+
+        assertEquals(((List) map.get("nodes")).size(), 6);
+        assertEquals(((List) map.get("relationships")).size(), 5);
+        assertEquals(response.getStatus(), 200);
     }
 
-    @Test
-    public void shouldQueryDbForFriendsWithJava() throws IOException {
-        Response response = service.getFriendsJava("B", graphDb);
-        List list = objectMapper.readValue((String) response.getEntity(), List.class);
-        assertEquals(new HashSet<>(Arrays.asList("A", "C")), new HashSet<>(list));
-    }
 
     private void populateDb(GraphDatabaseService db) {
         try(Transaction tx = db.beginTx())
@@ -71,10 +66,23 @@ public class MyServiceTest {
             Node personA = createPerson(db, "A");
             Node personB = createPerson(db, "B");
             Node personC = createPerson(db, "C");
+
             Node personD = createPerson(db, "D");
+            Node personE = createPerson(db, "E");
+            Node personF = createPerson(db, "F");
+
             personA.createRelationshipTo(personB, KNOWS);
+            personA.createRelationshipTo(personC, KNOWS);
+
+            personB.createRelationshipTo(personA, KNOWS);
             personB.createRelationshipTo(personC, KNOWS);
+
+            personC.createRelationshipTo(personA, KNOWS);
+            personC.createRelationshipTo(personB, KNOWS);
+
             personC.createRelationshipTo(personD, KNOWS);
+            personD.createRelationshipTo(personE, KNOWS);
+            personC.createRelationshipTo(personF, KNOWS);
             tx.success();
         }
     }
